@@ -1,0 +1,5 @@
+BG()  
+    player.draw()
+    enemy.draw()
+    player.update_animation()
+    player.movement(moving_left, moving_right)
