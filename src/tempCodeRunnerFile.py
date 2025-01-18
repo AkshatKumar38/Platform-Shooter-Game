@@ -1,5 +1,2 @@
-BG()  
-    player.draw()
-    enemy.draw()
-    player.update_animation()
-    player.movement(moving_left, moving_right)
+player_group.update()
+        # enemy_group.update()
