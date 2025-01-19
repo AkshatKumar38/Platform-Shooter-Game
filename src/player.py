@@ -2,8 +2,6 @@ import pygame, os
 from settings import *
 from bullet import Bullet, bullet_group
 
-
-
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
@@ -40,13 +38,31 @@ class Character(pygame.sprite.Sprite):
         self.rect.center = (x,y)
         
         
-    def update(self):
-        self.update_animation()
-        self.check_alive()
+    def update(self):        
+        if not self.alive:
+            self.dead_animation(3)  # Play death animation
         # update cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
+        else:
+            # Regular updates for alive characters
+            self.update_animation()
+            self.check_alive()
     
+    def dead_animation(self, action):
+        self.action = action
+        # Always set the current image based on the current frame
+        self.image = self.animation_list[self.action][self.frame_index]
+        # Check if enough time has passed to update the frame
+        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+            # Update the timing and increment the frame index if possible
+            self.update_time = pygame.time.get_ticks()  # Update time here
+            if self.frame_index < len(self.animation_list[self.action]) - 1:
+                self.frame_index += 1
+            else:
+                # If on the last frame, keep it there and stop incrementing
+                self.frame_index = len(self.animation_list[self.action]) - 1
+        
     def movement(self, moving_left, moving_right):        
         # reset movement variables
         dx = 0
@@ -87,35 +103,33 @@ class Character(pygame.sprite.Sprite):
             self.ammo -= 1 # reduce ammo
             
     def update_animation(self):
-		#update animation
-        ANIMATION_COOLDOWN = 100
-		#update image depending on current frame
+        # If the character is alive, update animations based on actions (idle, run, jump)
+        
         self.image = self.animation_list[self.action][self.frame_index]
-		#check if enough time has passed since the last update
+
         if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
-            #if the animation has run out the reset back to the start
+        # Reset or loop depending on the action type
         if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
+            if self.action == 3:  # Death animation should not loop
                 self.frame_index = len(self.animation_list[self.action]) - 1
             else:
-                self.frame_index = 0
+                self.frame_index = 0  # Loop animations for idle, run, etc.
 
     def update_action(self, new_action):
         #check if new action is different from the previous action
         # print(new_action)
-        if new_action != self.action:
+        if new_action != self.action and self.alive:
             self.action = new_action
             self.frame_index = 0 # reset animation
-            self.check_time = pygame.time.get_ticks()
+            self.update_time = pygame.time.get_ticks()
     
     def check_alive(self):
         if self.health <= 0:
             self.health = 0
             self.speed = 0
             self.alive = False
-            self.update_action(3)
         
     def draw(self):
             screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)

@@ -15,11 +15,13 @@ def BG():
     
 def main():
     game_over = False
-    enemy = Character('enemy',200, 250,C_SIZE, C_SPEED)
-    player = Character('player',200, 200,C_SIZE, C_SPEED)
+    enemy1 = Character('enemy',200, 250,C_SIZE, C_SPEED)
+    enemy2 = Character('enemy',400, 250,C_SIZE, C_SPEED)
+    
+    player = Character('player',600, 200,C_SIZE, C_SPEED)
     
     player_group.add(player)
-    enemy_group.add(enemy)
+    enemy_group.add(enemy1, enemy2)
     moving_right = False
     moving_left = False
     shoot = False
@@ -29,11 +31,12 @@ def main():
         
         BG()  
         player.draw()
-        enemy.draw()
         player.update()
-        enemy.update()
+        enemy1.draw()
+        enemy1.update()
+        enemy2.draw()
+        enemy2.update()
         player.movement(moving_left, moving_right)
-        #enemy.movement(moving_left,moving_right)
         # update and draw groups
         bullet_group.update(player_group,enemy_group)
         bullet_group.draw(screen)
@@ -75,7 +78,6 @@ def main():
                 player.update_action(1) # 1 = run
             else:
                 player.update_action(0) # 0 = idle
-                enemy.update_action(0)
         
         #player.movement(moving_left, moving_right)
         pygame.display.update()
