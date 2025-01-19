@@ -1,6 +1,6 @@
 import pygame, os
 from settings import *
-from bullet import Bullet, bullet_group
+from projectiles import Bullet, bullet_group, Grenade, grendade_group
 
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
@@ -15,8 +15,10 @@ class Character(pygame.sprite.Sprite):
         self.direction = 1
         self.flip =False
         self.shoot_cooldown = 0
-        self.ammo = AMMO
-        self.start_ammo = AMMO
+        self.s_ammo = S_AMMO
+        self.start_sammo = S_AMMO
+        self.g_ammo = G_AMMO
+        self.start_gammo = G_AMMO
         
         self.frame_index = 0
         self.action = 0
@@ -95,13 +97,6 @@ class Character(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
     
-    def shoot(self):
-        if self.shoot_cooldown == 0 and self.ammo > 0:
-            self.shoot_cooldown = SHOOT_COOLDOWN    
-            bullet = Bullet(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.centery, self.direction)
-            bullet_group.add(bullet)
-            self.ammo -= 1 # reduce ammo
-            
     def update_animation(self):
         # If the character is alive, update animations based on actions (idle, run, jump)
         
@@ -131,5 +126,17 @@ class Character(pygame.sprite.Sprite):
             self.speed = 0
             self.alive = False
         
+    def shoot_b(self):
+        if self.shoot_cooldown == 0 and self.s_ammo > 0:
+            self.shoot_cooldown = SHOOT_COOLDOWN    
+            bullet = Bullet(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.centery, self.direction)
+            bullet_group.add(bullet)
+            self.s_ammo -= 1 # reduce ammo
+    def throw_g(self):
+        if self.g_ammo > 0:
+            grendade = Grenade(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.top, self.direction)
+            grendade_group.add(grendade)   
+            self.g_ammo -= 1 # reduce ammo
+            
     def draw(self):
             screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)

@@ -1,2 +1,2 @@
-player_group.update()
-        # enemy_group.update()
+        grendade_group.update(player_group,enemy_group)
+        grendade_group.draw(screen)

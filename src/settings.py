@@ -1,11 +1,10 @@
 #***********  GAME SETTINGS **********
 import pygame
 
-
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-
+TILE_SIZE = 75
 
 # Game variables
 GRAVITY = 0.75
@@ -15,12 +14,19 @@ clock = pygame.time.Clock()
 #Character settings
 C_SIZE = 2
 C_SPEED = 10
-AMMO = 20
-SHOOT_COOLDOWN = 20
+P_SPEED = 10
 C_HEALTH = 100
 
-#Bullet
-BULLET_PATH = 'assets/images/icons/bullet.png'
+#Projectiles
+B_PATH = 'assets/images/icons/bullet.png'
+B_SPEED = 10
+S_AMMO = 20
+SHOOT_COOLDOWN = 20
+G_PATH = 'assets/images/icons/grenade.png'
+G_SPEED = 7
+G_AMMO = 20
+G_TIMER = 100
+E_SPEED = 4
 
 # Basic Colours
 WHITE = (255, 255, 255)

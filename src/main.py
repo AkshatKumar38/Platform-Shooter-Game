@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from player import Character
-from bullet import bullet_group
+from projectiles import bullet_group, grendade_group, explosion_group
 
 pygame.init()
 pygame.display.set_caption("Shooter Game")
@@ -15,16 +15,18 @@ def BG():
     
 def main():
     game_over = False
-    enemy1 = Character('enemy',200, 250,C_SIZE, C_SPEED)
-    enemy2 = Character('enemy',400, 250,C_SIZE, C_SPEED)
+    enemy1 = Character('enemy',200, 265,C_SIZE, C_SPEED)
+    enemy2 = Character('enemy',400, 265,C_SIZE, C_SPEED)
     
-    player = Character('player',600, 200,C_SIZE, C_SPEED)
+    player = Character('player',600, 200,C_SIZE, P_SPEED)
     
     player_group.add(player)
     enemy_group.add(enemy1, enemy2)
     moving_right = False
     moving_left = False
-    shoot = False
+    shoot_b = False
+    throw_g = False
+    grendade_thrown = False
     
     while not game_over:
         clock.tick(60)
@@ -32,14 +34,19 @@ def main():
         BG()  
         player.draw()
         player.update()
-        enemy1.draw()
-        enemy1.update()
-        enemy2.draw()
-        enemy2.update()
+        for enemy in enemy_group:
+            enemy.draw()
+            enemy.update()
+
         player.movement(moving_left, moving_right)
+        
         # update and draw groups
         bullet_group.update(player_group,enemy_group)
         bullet_group.draw(screen)
+        grendade_group.update(player_group,enemy_group)
+        grendade_group.draw(screen)
+        explosion_group.update()
+        explosion_group.draw(screen)
         # event window
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # quit game
@@ -52,7 +59,9 @@ def main():
                 if event.key == pygame.K_d:
                     moving_right =True
                 if event.key == pygame.K_q:
-                    shoot = True
+                    shoot_b = True
+                if event.key == pygame.K_f:
+                    throw_g = True
                 if (event.key == pygame.K_w or event.key == pygame.K_SPACE) and player.alive:
                     player.jump = True
                 if event.key == pygame.K_ESCAPE:
@@ -65,13 +74,20 @@ def main():
                 if event.key == pygame.K_d:
                     moving_right = False
                 if event.key == pygame.K_q:
-                    shoot = False
+                    shoot_b = False
+                if event.key == pygame.K_f:
+                    throw_g = False
+                    grendade_thrown = False
                      
         # only change action if player is alive
         if player.alive:               
             # changing action when running or idle or jumping
-            if shoot:
-                player.shoot()
+            if shoot_b:
+                player.shoot_b()
+            elif throw_g and not grendade_thrown:
+                player.throw_g()
+                grendade_thrown = True
+                
             if player.in_air:
                 player.update_action(2)
             elif moving_left or moving_right:
