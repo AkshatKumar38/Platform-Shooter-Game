@@ -1,0 +1,1 @@
+print(type(save_level_img))  # Should print <class 'pygame.Surface'>
