@@ -39,7 +39,7 @@ def main():     # main loop
     grendade_thrown = False
     
     while not game_over:
-        clock.tick(60)
+        clock.tick(FPS)
         
         BG()
         health_bar.draw(player.health) # show health bar

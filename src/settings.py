@@ -5,7 +5,7 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 TILE_SIZE = 40
-
+FPS = 60
 
 # Game variables
 GRAVITY = 0.75
