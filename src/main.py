@@ -1,27 +1,37 @@
 import pygame
 from settings import *
-from player import Character
+from player import Character, HealthBar, player_group, enemy_group
 from projectiles import bullet_group, grendade_group, explosion_group
+from pickups import ItemBox, item_group
 
 pygame.init()
 pygame.display.set_caption("Shooter Game")
-
-player_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
-
+FONT = pygame.font.SysFont('Futura', 30)
+font = FONT
 def BG():
     screen.fill(BLUE)
     pygame.draw.line(screen, RED, (0,300), (SCREEN_WIDTH,300))
-    
-def main():
+
+def display_text(text, font, colour, x, y):
+    img = font.render(text, True, colour)
+    screen.blit(img, (x, y))
+
+def main():     # main loop
     game_over = False
-    enemy1 = Character('enemy',200, 265,C_SIZE, C_SPEED)
-    enemy2 = Character('enemy',400, 265,C_SIZE, C_SPEED)
+    
+    enemy1 = Character('enemy',400, 265,C_SIZE, C_SPEED)
+    #enemy2 = Character('enemy', 800, 265,C_SIZE, C_SPEED)
+    enemy_group.add(enemy1)
     
     player = Character('player',600, 200,C_SIZE, P_SPEED)
-    
+    health_bar = HealthBar(10,10, player.health, player.max_health)
     player_group.add(player)
-    enemy_group.add(enemy1, enemy2)
+    
+    item1 = ItemBox('health', 100, 260)
+    item2 = ItemBox('grenade', 300, 260)
+    item3 = ItemBox('ammo', 500, 260)
+    item_group.add(item1, item2, item3)
+    
     moving_right = False
     moving_left = False
     shoot_b = False
@@ -31,14 +41,21 @@ def main():
     while not game_over:
         clock.tick(60)
         
-        BG()  
+        BG()
+        health_bar.draw(player.health) # show health bar
+        display_text('AMMO: ', font, WHITE, 10, 35) # show s_ammo
+        for x in range(player.s_ammo):
+            screen.blit(bullet_image, (85 + (x * 10), 40))
+        display_text('GRENADE: ', font, WHITE, 10, 65) # show g_ammo
+        for x in range(player.g_ammo):
+            screen.blit(grenade_image, (120 + (x * 15), 68))
+        
         player.draw()
         player.update()
         for enemy in enemy_group:
             enemy.draw()
             enemy.update()
-
-        player.movement(moving_left, moving_right)
+            enemy.ai()
         
         # update and draw groups
         bullet_group.update(player_group,enemy_group)
@@ -47,6 +64,10 @@ def main():
         grendade_group.draw(screen)
         explosion_group.update()
         explosion_group.draw(screen)
+        item_group.update(player_group)
+        item_group.draw(screen)
+        
+        player.movement(moving_left, moving_right)
         # event window
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # quit game

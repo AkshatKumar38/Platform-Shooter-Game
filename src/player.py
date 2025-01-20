@@ -1,6 +1,10 @@
-import pygame, os
+import pygame, os, random
 from settings import *
 from projectiles import Bullet, bullet_group, Grenade, grendade_group
+
+player_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
+
 
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
@@ -19,6 +23,11 @@ class Character(pygame.sprite.Sprite):
         self.start_sammo = S_AMMO
         self.g_ammo = G_AMMO
         self.start_gammo = G_AMMO
+        # ai specific methods
+        self.move_counter = 0
+        self.idling = False
+        self.idling_counter = 0
+        self.vision = pygame.Rect(0, 0, 150, 20) # what ai sees
         
         self.frame_index = 0
         self.action = 0
@@ -137,6 +146,54 @@ class Character(pygame.sprite.Sprite):
             grendade = Grenade(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.top, self.direction)
             grendade_group.add(grendade)   
             self.g_ammo -= 1 # reduce ammo
+    
+    def ai(self):
+        for player in player_group:
+            if self.alive and player.alive:
+                if self.idling == False and random.randint(1, 200) == 69:
+                    self.update_action(0)
+                    self.idling = True
+                    self.idling_counter = 50
+                if self.vision.colliderect(player.rect):
+                    self.idling = True
+                    self.update_action(0)
+                    self.shoot_b()
+                else:
+                    if self.idling == False:
+                        if self.direction == 1:
+                            ai_move_right = True
+                        else:
+                            ai_move_right = False
+                        ai_move_left = not ai_move_right
+                        self.movement(ai_move_left, ai_move_right)
+                        self.update_action(1) # run
+                        self.move_counter += 1
+                        self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+                        pygame.draw.rect(screen, RED, self.vision)
+                        
+                        if self.move_counter > TILE_SIZE:
+                            self.direction *= -1
+                            self.move_counter *= -1
+                    else:
+                        self.idling_counter -= 1
+                        if self.idling_counter <= 0:
+                            self. idling = False
             
     def draw(self):
             screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
+
+class HealthBar():
+    def __init__(self, x, y, health, max_health):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.max_health = max_health
+    
+    def draw(self, health):
+        self.health = health
+        
+        ratio = self.health / self.max_health
+        pygame.draw.rect(screen, BLACK, (self.x - 2, self.y -2 , 154, 24))
+        pygame.draw.rect(screen, RED, (self.x, self.y, 150, 20))
+        pygame.draw.rect(screen, GREEN, (self.x, self.y, 150 * ratio, 20))
+        
