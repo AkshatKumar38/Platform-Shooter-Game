@@ -1,10 +1,7 @@
 import pygame
 from settings import *
 
-# create sprite groups
-bullet_group = pygame.sprite.Group()
-grendade_group = pygame.sprite.Group()
-explosion_group= pygame.sprite.Group()
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
@@ -37,8 +34,6 @@ class Bullet(pygame.sprite.Sprite):
 class Grenade(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
-        grenade_image = pygame.image.load(G_PATH).convert_alpha()
-        grenade_image = pygame.transform.scale(grenade_image, (int(grenade_image.get_width()), int(grenade_image.get_height())))
         self.image = grenade_image
         self.vel_x = G_SPEED
         self.vel_y = -10

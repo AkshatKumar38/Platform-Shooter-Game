@@ -1,5 +1,9 @@
 import pygame
 from settings import *
+# Pickups
+HEALTH_BOX  = 'assets/images/icons/health_box.png'
+GRENADE_BOX  = 'assets/images/icons/grenade_box.png'
+AMMO_BOX  = 'assets/images/icons/ammo_box.png'
 
 hbox_img = pygame.image.load(HEALTH_BOX).convert_alpha()
 gbox_img = pygame.image.load(GRENADE_BOX).convert_alpha()
@@ -10,8 +14,6 @@ item_boxes = {
     'grenade'   : gbox_img,
     'ammo'      : abox_img
 }
-
-item_group = pygame.sprite.Group()
 
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self,item_type, x, y ):

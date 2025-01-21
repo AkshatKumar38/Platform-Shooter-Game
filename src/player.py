@@ -2,8 +2,6 @@ import pygame, os, random
 from settings import *
 from projectiles import Bullet, bullet_group, Grenade, grendade_group
 
-player_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
 
 
 class Character(pygame.sprite.Sprite):
@@ -154,10 +152,19 @@ class Character(pygame.sprite.Sprite):
                     self.update_action(0)
                     self.idling = True
                     self.idling_counter = 50
+                # Detect player in vision
                 if self.vision.colliderect(player.rect):
-                    self.idling = True
-                    self.update_action(0)
-                    self.shoot_b()
+                    # Transition to idle before shooting
+                    if not self.idling:
+                        self.update_action(0)  # idle frame
+                        self.idling = True
+                        self.idling_counter = 10  # delay before shooting
+                    elif self.idling_counter <= 0:
+                        # once the delay is over, start shooting
+                        self.shoot_b()
+                    else:
+                        # Countdown during the idle delay
+                        self.idling_counter -= 1
                 else:
                     if self.idling == False:
                         if self.direction == 1:
@@ -168,12 +175,13 @@ class Character(pygame.sprite.Sprite):
                         self.movement(ai_move_left, ai_move_right)
                         self.update_action(1) # run
                         self.move_counter += 1
+                        
                         self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
                         pygame.draw.rect(screen, RED, self.vision)
                         
-                        if self.move_counter > TILE_SIZE:
+                        if abs(self.move_counter) > TILE_SIZE:
                             self.direction *= -1
-                            self.move_counter *= -1
+                            self.move_counter = 0
                     else:
                         self.idling_counter -= 1
                         if self.idling_counter <= 0:
