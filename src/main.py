@@ -22,7 +22,7 @@ def main():     # main loop
         for enemy in enemy_group:
             enemy.draw()
             enemy.update()
-            enemy.ai()
+            enemy.ai(world)
         healthbar.draw(player.health)
         World.display_text('AMMO: ', font, WHITE, 10, 35) # show s_ammo
         for x in range(player.s_ammo):
@@ -32,9 +32,9 @@ def main():     # main loop
             screen.blit(grenade_image, (120 + (x * 15), 68))
         
         # update and draw groups
-        bullet_group.update(player_group,enemy_group)
+        bullet_group.update(player_group,enemy_group, world)
         bullet_group.draw(screen)
-        grendade_group.update(player_group,enemy_group)
+        grendade_group.update(player_group,enemy_group, world)
         grendade_group.draw(screen)
         explosion_group.update()
         explosion_group.draw(screen)
@@ -47,7 +47,7 @@ def main():     # main loop
         exit_group.draw(screen)
         exit_group.update()
         
-        player.movement(moving_left, moving_right)
+        player.movement(moving_left, moving_right, world)
         # event window
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # quit game

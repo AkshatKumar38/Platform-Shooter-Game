@@ -2,8 +2,6 @@ import pygame, os, random
 from settings import *
 from projectiles import Bullet, bullet_group, Grenade, grendade_group
 
-
-
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
@@ -45,6 +43,8 @@ class Character(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         
         
     def update(self):        
@@ -57,22 +57,8 @@ class Character(pygame.sprite.Sprite):
             # Regular updates for alive characters
             self.update_animation()
             self.check_alive()
-    
-    def dead_animation(self, action):
-        self.action = action
-        # Always set the current image based on the current frame
-        self.image = self.animation_list[self.action][self.frame_index]
-        # Check if enough time has passed to update the frame
-        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
-            # Update the timing and increment the frame index if possible
-            self.update_time = pygame.time.get_ticks()  # Update time here
-            if self.frame_index < len(self.animation_list[self.action]) - 1:
-                self.frame_index += 1
-            else:
-                # If on the last frame, keep it there and stop incrementing
-                self.frame_index = len(self.animation_list[self.action]) - 1
         
-    def movement(self, moving_left, moving_right):        
+    def movement(self, moving_left, moving_right, world):        
         # reset movement variables
         dx = 0
         dy = 0
@@ -93,13 +79,26 @@ class Character(pygame.sprite.Sprite):
         # apply gravity
         self.vel_y += GRAVITY
         if self.vel_y > 10:
-            self.vel_y
+            self.vel_y = 10
         dy += self.vel_y
         
-        #check for collision with line
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.in_air = False
+        # check for collision 
+        for tile in world.obstacle_list:
+            # check collision in x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+            # check collision in y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # check collison while jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check collison while falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom
+                    
         # actually moves the player 
         self.rect.x += dx
         self.rect.y += dy
@@ -118,6 +117,20 @@ class Character(pygame.sprite.Sprite):
                 self.frame_index = len(self.animation_list[self.action]) - 1
             else:
                 self.frame_index = 0  # Loop animations for idle, run, etc.
+    
+    def dead_animation(self, action):
+        self.action = action
+        # Always set the current image based on the current frame
+        self.image = self.animation_list[self.action][self.frame_index]
+        # Check if enough time has passed to update the frame
+        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+            # Update the timing and increment the frame index if possible
+            self.update_time = pygame.time.get_ticks()  # Update time here
+            if self.frame_index < len(self.animation_list[self.action]) - 1:
+                self.frame_index += 1
+            else:
+                # If on the last frame, keep it there and stop incrementing
+                self.frame_index = len(self.animation_list[self.action]) - 1
 
     def update_action(self, new_action):
         #check if new action is different from the previous action
@@ -145,7 +158,7 @@ class Character(pygame.sprite.Sprite):
             grendade_group.add(grendade)   
             self.g_ammo -= 1 # reduce ammo
     
-    def ai(self):
+    def ai(self, world):
         for player in player_group:
             if self.alive and player.alive:
                 if self.idling == False and random.randint(1, 200) == 69:
@@ -172,13 +185,10 @@ class Character(pygame.sprite.Sprite):
                         else:
                             ai_move_right = False
                         ai_move_left = not ai_move_right
-                        self.movement(ai_move_left, ai_move_right)
+                        self.movement(ai_move_left, ai_move_right, world)
                         self.update_action(1) # run
-                        self.move_counter += 1
-                        
+                        self.move_counter += 1 
                         self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
-                        pygame.draw.rect(screen, RED, self.vision)
-                        
                         if abs(self.move_counter) > TILE_SIZE:
                             self.direction *= -1
                             self.move_counter = 0

@@ -1,8 +1,6 @@
 import pygame
 from settings import *
 
-
-
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
@@ -14,9 +12,12 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.direction = direction
     
-    def update(self, player_group, enemy_group):
+    def update(self, player_group, enemy_group, world):
         self.rect.x += (self.direction * self.speed)
         
+        for tile in world.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                self.kill()
         # check if bullet gone offscreen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
@@ -39,18 +40,32 @@ class Grenade(pygame.sprite.Sprite):
         self.vel_y = -10
         self.timer = G_TIMER
         self.rect = self.image.get_rect()
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.rect.center = (x, y)
         self.direction = direction
         
-    def update(self, player_group, enemy_group):
+    def update(self, player_group, enemy_group, world):
         self.vel_y += GRAVITY
         dx = self.direction * self.vel_x
         dy = self.vel_y
         
-        #check for collision with line
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.vel_x = 0
+        for tile in world.obstacle_list:
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                self.direction *= -1
+                dx = self.direction * self.vel_x
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                self.vel_x = 0
+                # check collison while thrown
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check collison while falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom
+                    
         
         self.rect.x += dx
         self.rect.y += dy
