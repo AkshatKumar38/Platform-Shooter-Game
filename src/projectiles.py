@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-
+from sound import grenade_fx
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
@@ -81,6 +81,7 @@ class Grenade(pygame.sprite.Sprite):
             self.kill()
             explosion = Explosion(self.rect.x, self.rect.y)
             explosion_group.add(explosion)
+            grenade_fx.play()
         
             # check collison with enemy
             for player in player_group:

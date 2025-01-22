@@ -1,6 +1,7 @@
 import pygame, os, random
 from settings import *
 from projectiles import Bullet, Grenade
+from sound import shot_fx
 
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
@@ -176,12 +177,12 @@ class Character(pygame.sprite.Sprite):
             self.alive = False
         
     def shoot_b(self):
-        
         if self.shoot_cooldown == 0 and self.s_ammo > 0:
             self.shoot_cooldown = SHOOT_COOLDOWN    
             bullet = Bullet(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.centery, self.direction)
             bullet_group.add(bullet)
             self.s_ammo -= 1 # reduce ammo
+            shot_fx.play()
     def throw_g(self):
         if self.g_ammo > 0:
             grendade = Grenade(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.top, self.direction)

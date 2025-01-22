@@ -1,1 +1,1 @@
-game_over
+death_fade.fade()

@@ -45,6 +45,7 @@ RED = (213, 50, 80)
 GREEN = (0, 255, 0)
 BLUE = (50, 153, 213)
 YELLOW = (255, 255, 0)
+PINK = (235, 65, 54)
 
 # create sprite groups
 player_group = pygame.sprite.Group()

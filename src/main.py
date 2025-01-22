@@ -2,7 +2,8 @@ import pygame
 import pickle  # Import for loading level data
 from settings import *
 from game_world import World
-from start_menu import start_screen, end_screen
+from start_menu import start_screen, end_screen, start_fade
+from sound import *
 
 pygame.init()
 pygame.display.set_caption("Shooter Game")
@@ -37,8 +38,8 @@ def main():
     # Run the start menu
     if not start_screen():
         return  # Exit the game if the player quits from the menu
-
     # Initialize variables
+    start_intro = True
     game_over = False
     screen_scroll = 0
     bg_scroll = 0
@@ -60,13 +61,6 @@ def main():
 
         world.bg(bg_scroll)
         world.draw_world(screen_scroll)
-        player.draw()
-        player.update()
-
-        for enemy in enemy_group:
-            enemy.draw()
-            enemy.update()
-            enemy.ai(world, screen_scroll, bg_scroll, level_length)
 
         healthbar.draw(player.health)
         World.display_text('AMMO: ', font, WHITE, 10, 35)  # show ammo
@@ -91,8 +85,19 @@ def main():
         water_group.update(screen_scroll)
         exit_group.draw(screen)
         exit_group.update(screen_scroll)
+        
+        player.draw()
+        player.update()
 
+        for enemy in enemy_group:
+            enemy.draw()
+            enemy.update()
+            enemy.ai(world, screen_scroll, bg_scroll, level_length)
 
+        if start_intro:
+            if start_fade.fade():
+                start_intro = False
+                start_fade.fade_counter = 0
         if player.alive:
             if shoot_b:
                 player.shoot_b()
@@ -108,6 +113,7 @@ def main():
             screen_scroll, level_complete = player.movement(moving_left, moving_right, world, screen_scroll, bg_scroll, level_length)
             bg_scroll -= screen_scroll
             if level_complete:
+                start_intro = True
                 level += 1
                 bg_scroll = 0
                 world_data = reset()
@@ -120,8 +126,10 @@ def main():
         else:
             # When player dies, reset the world and reload the level
             screen_scroll = 0
+
             restart = end_screen()
             if restart:
+                start_intro = True
                 bg_scroll = 0
                 world_data = reset()
                 world_data = []
@@ -147,6 +155,7 @@ def main():
                     throw_g = True
                 if (event.key == pygame.K_w or event.key == pygame.K_SPACE) and player.alive:
                     player.jump = True
+                    jump_fx.play()
                 if event.key == pygame.K_ESCAPE:
                     game_over = True
             elif event.type == pygame.KEYUP:
