@@ -12,9 +12,9 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.direction = direction
     
-    def update(self, player_group, enemy_group, world):
+    def update(self, world, screen_scroll):
         self.rect.x += (self.direction * self.speed)
-        
+        self.rect.x += screen_scroll
         for tile in world.obstacle_list:
             if tile[1].colliderect(self.rect):
                 self.kill()
@@ -45,7 +45,8 @@ class Grenade(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.direction = direction
         
-    def update(self, player_group, enemy_group, world):
+    def update(self, world, screen_scroll):
+        self.rect.x += screen_scroll
         self.vel_y += GRAVITY
         dx = self.direction * self.vel_x
         dy = self.vel_y
@@ -107,7 +108,8 @@ class Explosion(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.counter = 0
 
-    def update(self):
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
         self.counter += 1
         if self.counter >= E_SPEED:
             self.counter = 0

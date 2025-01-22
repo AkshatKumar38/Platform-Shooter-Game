@@ -81,11 +81,11 @@ def draw_grid(scroll):
     for c in range(ROWS + 1):
         pygame.draw.line(screen, WHITE, (0, c * TILE_SIZE), (SCREEN_WIDTH, c * TILE_SIZE ))
 
-def draw_world():
+def draw_world(scroll):
     for y, row in enumerate(world_list):
         for x, tile in enumerate(row):
             if tile >= 0:
-                screen.blit(img_list[tile], (x * TILE_SIZE, y * TILE_SIZE))
+                screen.blit(img_list[tile], (x * TILE_SIZE - scroll, y * TILE_SIZE))
 
 def draw_text(text, font, colour, x, y):
     img = font.render(text, True, colour)
@@ -110,7 +110,7 @@ def main():
         clock.tick(FPS)
         bg(scroll)
         draw_grid(scroll)
-        draw_world()
+        draw_world(scroll)
         
         # draw buttons
         if save_button.draw(screen):
@@ -118,13 +118,14 @@ def main():
             pickle_out = open(f'level{level}_data', 'wb')
             pickle.dump(world_list, pickle_out)
             pickle_out.close()
+            print('Game Saved')
                 
         if load_button.draw(screen):
             scroll = 0
             world_list = []
             pickle_in = open(f'level{level}_data', 'rb')
             world_list = pickle.load(pickle_in)
-                    
+            print('Game Loaded')
         
         draw_text(f'Level: {level}',font, WHITE, 10, SCREEN_HEIGHT + LOWER_MARGIN - 90)
         draw_text('Press UP or DOWN to change the level',font, WHITE, 10, SCREEN_HEIGHT + LOWER_MARGIN - 60)

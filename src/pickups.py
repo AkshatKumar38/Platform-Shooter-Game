@@ -24,7 +24,8 @@ class ItemBox(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
         
-    def update(self, player_group):
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
         # check collision with player
         for player in pygame.sprite.spritecollide(self, player_group, False):
             if player.alive:
@@ -32,10 +33,13 @@ class ItemBox(pygame.sprite.Sprite):
                     player.health += 25
                     if player.health > player.max_health:
                         player.health = player.max_health
+                    print("health collected")
                 if self.item_type == 'grenade':
                     player.g_ammo += 1
-                else:
+                    print("grenade collected")
+                if self.item_type == 'ammo':
                     player.s_ammo += 5
+                    print("ammo collected")
                 self.kill()
                 
             

@@ -1,6 +1,6 @@
 import pygame, os, random
 from settings import *
-from projectiles import Bullet, bullet_group, Grenade, grendade_group
+from projectiles import Bullet, Grenade
 
 class Character(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
@@ -58,7 +58,8 @@ class Character(pygame.sprite.Sprite):
             self.update_animation()
             self.check_alive()
         
-    def movement(self, moving_left, moving_right, world):        
+    def movement(self, moving_left, moving_right, world, screen_scroll,bg_scroll, level_length):
+        screen_scroll = 0    
         # reset movement variables
         dx = 0
         dy = 0
@@ -87,6 +88,9 @@ class Character(pygame.sprite.Sprite):
             # check collision in x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
+                if self.char_type == 'enemy':
+                    self.direction *= -1
+                    self.move_counter = 0
             # check collision in y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 # check collison while jumping
@@ -98,10 +102,31 @@ class Character(pygame.sprite.Sprite):
                     self.vel_y = 0
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom
-                    
+        
+        # collision with water
+        if pygame.sprite.spritecollide(self, water_group, False):
+            self.health = 0
+        
+        # player falls off the map 
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.health = 0
+        
+        # check so player donot run off the map
+        if self.char_type == 'player':
+            if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+                dx = 0  
         # actually moves the player 
         self.rect.x += dx
         self.rect.y += dy
+        
+        # update scroll
+        if self.char_type == 'player':
+            if (self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and bg_scroll < (level_length * TILE_SIZE) - SCREEN_WIDTH)\
+                or (self.rect.right < SCROLL_THRESH and bg_scroll > abs(dx)):
+                self.rect.x -= dx
+                screen_scroll = -dx
+        
+        return screen_scroll
     
     def update_animation(self):
         # If the character is alive, update animations based on actions (idle, run, jump)
@@ -147,6 +172,7 @@ class Character(pygame.sprite.Sprite):
             self.alive = False
         
     def shoot_b(self):
+        
         if self.shoot_cooldown == 0 and self.s_ammo > 0:
             self.shoot_cooldown = SHOOT_COOLDOWN    
             bullet = Bullet(self.rect.centerx + (self.rect.size[0] * 0.6 * self.direction), self.rect.centery, self.direction)
@@ -158,7 +184,7 @@ class Character(pygame.sprite.Sprite):
             grendade_group.add(grendade)   
             self.g_ammo -= 1 # reduce ammo
     
-    def ai(self, world):
+    def ai(self, world, screen_scroll, bg_scroll, level_length):
         for player in player_group:
             if self.alive and player.alive:
                 if self.idling == False and random.randint(1, 200) == 69:
@@ -185,7 +211,7 @@ class Character(pygame.sprite.Sprite):
                         else:
                             ai_move_right = False
                         ai_move_left = not ai_move_right
-                        self.movement(ai_move_left, ai_move_right, world)
+                        self.movement(ai_move_left, ai_move_right, world, screen_scroll, bg_scroll, level_length)
                         self.update_action(1) # run
                         self.move_counter += 1 
                         self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
@@ -196,6 +222,8 @@ class Character(pygame.sprite.Sprite):
                         self.idling_counter -= 1
                         if self.idling_counter <= 0:
                             self. idling = False
+        
+        self.rect.x += screen_scroll
             
     def draw(self):
             screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)

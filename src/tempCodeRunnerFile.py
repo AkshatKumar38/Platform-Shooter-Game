@@ -1,2 +1,1 @@
-_group)
-        item_group.draw(screen)
+game_over

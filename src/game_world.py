@@ -1,7 +1,7 @@
 import pygame
 from settings import *
-from player import Character, HealthBar, player_group, enemy_group
-from pickups import ItemBox, item_group
+from player import Character, HealthBar
+from pickups import ItemBox
 
 # background images
 pine1_img = pygame.image.load('assets/images/background/pine1.png').convert_alpha()
@@ -14,6 +14,7 @@ class World():
         self.obstacle_list = []
     
     def process_data(self, data):
+        level_length = len(data[0])
         # Load tile images
         img_list = []
         player = None  # Initialize the player variable
@@ -65,23 +66,24 @@ class World():
         if player is None:
             raise ValueError("Player could not be initialized. Ensure the world data contains a player tile (15).")
 
-        return player, health_bar
+        return player, health_bar, level_length
         
     def display_text(text, font, colour, x, y):
         img = font.render(text, True, colour)
         screen.blit(img, (x, y))
     
-    def bg(self):
+    def bg(self, bg_scroll):
         screen.fill(GREEN)
         width  = sky_cloud_img.get_width()
         for x in range(4):
-            screen.blit(sky_cloud_img, ((x * width), 0))
-            screen.blit(mountain_img, ((x * width), SCREEN_HEIGHT - mountain_img.get_height() - 300))
-            screen.blit(pine1_img, ((x * width), SCREEN_HEIGHT - pine1_img.get_height() - 150))
-            screen.blit(pine2_img, ((x * width), SCREEN_HEIGHT - pine2_img.get_height() ))
+            screen.blit(sky_cloud_img, ((x * width) - bg_scroll * 0.5, 0))
+            screen.blit(mountain_img, ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
+            screen.blit(pine1_img, ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
+            screen.blit(pine2_img, ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height() ))
             
-    def draw_world(self):
+    def draw_world(self, screen_scroll):
         for tile in self.obstacle_list:
+            tile[1][0] += screen_scroll
             screen.blit(tile[0], tile[1])
 
 class Decoration(pygame.sprite.Sprite):
@@ -90,15 +92,24 @@ class Decoration(pygame.sprite.Sprite):
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+    
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 class Water(pygame.sprite.Sprite):
     def __init__(self, img, x, y ):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+        
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 class Exit(pygame.sprite.Sprite):
     def __init__(self, img, x, y ):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+        
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll

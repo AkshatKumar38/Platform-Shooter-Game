@@ -14,6 +14,7 @@ ROWS = 16
 COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
+SCROLL_THRESH = 200
 level = 1
 
 # Character settings
@@ -44,11 +45,6 @@ GREEN = (0, 255, 0)
 BLUE = (50, 153, 213)
 YELLOW = (255, 255, 0)
 
-# load level file
-world_data = []
-pickle_in = open(f'level{level}_data', 'rb')
-world_data = pickle.load(pickle_in)
-
 # create sprite groups
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
@@ -58,4 +54,5 @@ explosion_group= pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 decoration_group = pygame.sprite.Group()
 water_group = pygame.sprite.Group()
-exit_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group() 
+
