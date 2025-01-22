@@ -1,9 +1,8 @@
-import pygame
+import pygame, sys, os
 from settings import *
-import sys
-import os
 sys.path.append(os.path.dirname(os.path.abspath('editor'))) 
 from editor.button import Button
+from game_world import World
 pygame.init()
 
 # Set up display
@@ -23,16 +22,18 @@ restart_button_img = pygame.image.load('assets/images/buttons/restart_btn.png').
 
 # create buttons
 start_button = Button(SCREEN_WIDTH // 2 - 130, SCREEN_HEIGHT // 2 - 150, start_button_img, 1)
-exit_button = Button(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 + 50, exit_button_img, 1)
+exit_button1 = Button(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 + 50, exit_button_img, 1)
+exit_button2 = Button(SCREEN_WIDTH // 2 - 55, SCREEN_HEIGHT // 2 + 50, exit_button_img, 0.5)
 restart_button = Button(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 - 50, restart_button_img, 2)
 def start_screen():
     running = True
     while running:
-        screen.fill(BLUE)
+        world = World()
+        world.bg(P_SPEED,)
         # Draw buttons
         if start_button.draw(screen):
             return True
-        if exit_button.draw(screen):
+        if exit_button1.draw(screen):
             return False
 
         for event in pygame.event.get():
@@ -50,7 +51,7 @@ def end_screen():
         # Draw buttons
         if restart_button.draw(screen):
             return True
-        if exit_button.draw(screen):
+        if exit_button2.draw(screen):
             return False
 
         for event in pygame.event.get():
@@ -60,6 +61,3 @@ def end_screen():
 
         pygame.display.update()
     pygame.quit()
-    
-if __name__ == "__main__":
-    start_screen()

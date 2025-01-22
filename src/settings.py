@@ -15,7 +15,8 @@ COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
 SCROLL_THRESH = 200
-level = 1
+MAX_LEVELS = 2
+
 
 # Character settings
 C_SIZE = 1.65

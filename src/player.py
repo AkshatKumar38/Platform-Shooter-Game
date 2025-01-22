@@ -103,6 +103,10 @@ class Character(pygame.sprite.Sprite):
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom
         
+        # collision with exit
+        level_complete = False
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            level_complete = True       
         # collision with water
         if pygame.sprite.spritecollide(self, water_group, False):
             self.health = 0
@@ -126,7 +130,7 @@ class Character(pygame.sprite.Sprite):
                 self.rect.x -= dx
                 screen_scroll = -dx
         
-        return screen_scroll
+        return screen_scroll, level_complete
     
     def update_animation(self):
         # If the character is alive, update animations based on actions (idle, run, jump)

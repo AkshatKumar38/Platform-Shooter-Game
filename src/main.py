@@ -44,7 +44,7 @@ def main():
     bg_scroll = 0
     moving_right, moving_left, shoot_b, throw_g, grendade_thrown = False, False, False, False, False
     world = World()
-
+    level = 1
     # Load level data
     try:
         with open(f'level{level}_data', 'rb') as pickle_in:
@@ -92,8 +92,6 @@ def main():
         exit_group.draw(screen)
         exit_group.update(screen_scroll)
 
-        screen_scroll = player.movement(moving_left, moving_right, world, screen_scroll, bg_scroll, level_length)
-        bg_scroll -= screen_scroll
 
         if player.alive:
             if shoot_b:
@@ -107,6 +105,18 @@ def main():
                 player.update_action(1)
             else:
                 player.update_action(0)
+            screen_scroll, level_complete = player.movement(moving_left, moving_right, world, screen_scroll, bg_scroll, level_length)
+            bg_scroll -= screen_scroll
+            if level_complete:
+                level += 1
+                bg_scroll = 0
+                world_data = reset()
+                world_data = []
+                if level <= MAX_LEVELS:
+                    pickle_in = open(f'level{level}_data', 'rb')
+                    world_data = pickle.load(pickle_in)
+                    world = World()
+                    player, healthbar, level_length = world.process_data(world_data)
         else:
             # When player dies, reset the world and reload the level
             screen_scroll = 0
@@ -152,7 +162,6 @@ def main():
 
         pygame.display.update()
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
